@@ -1,0 +1,48 @@
+import java.util.*;
+
+class CheapestFlight {
+    static class Edge {
+        int dest, cost;
+        Edge(int d, int c) { dest = d; cost = c; }
+    }
+
+    static int findCheapestCost(int n, int[][] flights, int src, int dest) {
+        List<List<Edge>> graph = new ArrayList<>();
+        for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
+        for (int[] f : flights)
+            graph.get(f[0]).add(new Edge(f[1], f[2]));
+
+        int[] dist = new int[n];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[src] = 0;
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+        pq.offer(new int[]{src, 0});
+
+        while (!pq.isEmpty()) {
+            int[] cur = pq.poll();
+            int city = cur[0], cost = cur[1];
+            if (city == dest) return cost;
+
+            for (Edge e : graph.get(city)) {
+                int newCost = cost + e.cost;
+                if (newCost < dist[e.dest]) {
+                    dist[e.dest] = newCost;
+                    pq.offer(new int[]{e.dest, newCost});
+                }
+            }
+        }
+        return -1; // if path not found
+    }
+
+    public static void main(String[] args) {
+        int n = 5;
+        int[][] flights = {
+            {0, 1, 100}, {1, 2, 100},
+            {0, 2, 500}, {2, 3, 200},
+            {3, 4, 100}
+        };
+        int src = 0, dest = 4;
+        System.out.println("Cheapest cost: " + findCheapestCost(n, flights, src, dest));
+    }
+}
