@@ -1,0 +1,14 @@
+public class WaterBottles {
+    public static int numWaterBottles(int full, int exchange) {
+        int total = 0;
+        int empty = 0;
+        while (full > 0) {
+            total += full;
+            empty += full;
+            full = 0;
+            full = empty / exchange;
+            empty = empty % exchange;
+        }
+        return total;
+    }
+}
