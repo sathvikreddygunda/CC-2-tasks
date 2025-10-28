@@ -1,0 +1,125 @@
+Task: 13                                          
+Bank ATM Cash Optimization 
+Aim: 
+An ATM must dispense a given withdrawal amount using the least number of currency notes. Each 
+denomination is available in limited quantity. The goal is to minimize the total number of notes used 
+while ensuring the exact withdrawal amount.  
+Constraints: • 1 ≤ n ≤ 10 (denominations)  
+• Denominations: {2000, 500, 200, 100, 50, 20, 10}  
+• 1 ≤ withdrawal ≤ 10^6  
+• Use greedy approach (highest denomination first);  
+handle insufficient notes using DP. 
+Algorithm: 
+Step 1: Start and Input 
+• Start the program. 
+• Read the withdrawal amount W. 
+• Read the available count of each denomination from {2000, 500, 200, 100, 50, 20, 10} into an 
+array available[]. 
+Step 2: Initialize Variables 
+• Define array denominations[] = {2000, 500, 200, 100, 50, 20, 10}. 
+• Initialize an empty map or array usedNotes[] to store the number of notes used for each 
+denomination. 
+• Set remaining = W. 
+Step 3: Apply Greedy Approach 
+• For each denomination from highest to lowest: 
+1. Calculate count = min(remaining / denomination, available[i]). 
+2. Deduct the equivalent amount: remaining = remaining - (count * denomination). 
+3. Store count in usedNotes if greater than 0. 
+• If remaining == 0, go to Step 5 (output result). 
+• Else, go to Step 4 (use DP/backtracking to fill remaining amount). 
+Step 4: Apply Dynamic Programming / Backtracking 
+• Use a recursive or DP method to find a valid combination of smaller denominations to form the 
+remaining amount. 
+• For each denomination: 
+o Try using from maximum possible notes down to 0. 
+o Recur for the next denomination with updated remaining amount. 
+o If a valid combination is found, update usedNotes. 
+• If no valid combination is found, print “Cannot dispense the exact amount.” 
+Step 5: Output Result 
+• Display denominations and the number of notes used for each. 
+• Calculate and print the total number of notes dispensed. 
+• Stop the program. 
+Program: 
+import java.util.*; 
+public class BankATMCashOptimization { 
+static int[] denominations = {2000, 500, 200, 100, 50, 20, 10}; 
+public static void main(String[] args) { 
+Scanner sc = new Scanner(System.in); 
+System.out.print("Enter withdrawal amount: "); 
+int amount = sc.nextInt(); 
+int[] availableNotes = new int[denominations.length]; 
+System.out.println("Enter available notes for each denomination:"); 
+for (int i = 0; i < denominations.length; i++) { 
+System.out.print(denominations[i] + ": "); 
+availableNotes[i] = sc.nextInt(); 
+} 
+Map<Integer, Integer> result = dispenseCash(amount, availableNotes); 
+if (result == null) { 
+System.out.println("Cannot dispense the exact amount with available notes."); 
+} else { 
+System.out.println("\nDispensed Notes:"); 
+int totalNotes = 0; 
+for (int i = 0; i < denominations.length; i++) { 
+if (result.containsKey(denominations[i])) { 
+int count = result.get(denominations[i]); 
+totalNotes += count; 
+System.out.println("₹" + denominations[i] + " x " + count); 
+} 
+} 
+System.out.println("Total notes used: " + totalNotes); 
+}sc.close(); 
+} 
+public static Map<Integer, Integer> dispenseCash(int amount, int[] available) { 
+Map<Integer, Integer> usedNotes = new LinkedHashMap<>(); 
+for (int i = 0; i < denominations.length; i++) { 
+int note = denominations[i]; 
+int use = Math.min(amount / note, available[i]); 
+if (use > 0) { 
+usedNotes.put(note, use); 
+amount -= use * note; 
+} 
+} 
+if (amount > 0) { 
+System.out.println("\nGreedy failed — switching to DP..."); 
+if (!findCombinationDP(amount, available, usedNotes)) { 
+return null; // cannot dispense exact amount 
+} 
+} 
+return usedNotes; 
+} 
+public static boolean findCombinationDP(int remaining, int[] available, Map<Integer, Integer> used) { 
+return backtrack(remaining, 0, available.clone(), used); 
+}private static boolean backtrack(int remaining, int idx, int[] available, Map<Integer, Integer> used) { 
+if (remaining == 0) return true; 
+if (idx >= denominations.length || remaining < 0) return false; 
+int note = denominations[idx]; 
+int maxUse = Math.min(remaining / note, available[idx]); 
+for (int i = maxUse; i >= 0; i--) { 
+if (i > 0) used.put(note, i); 
+else used.remove(note); 
+if (backtrack(remaining - i * note, idx + 1, available, used)) 
+return true; 
+} 
+return false; 
+} 
+} 
+Input: 
+Withdrawal = 3850 
+Available Notes: 
+2000: 1 
+500: 2 
+200: 3 
+100: 4 
+50: 5 
+20: 5 
+10: 10 
+Output: 
+Dispensed Notes: 
+₹2000 x 1 
+₹500 x 2 
+₹200 x 3 
+₹100 x 2 
+₹50 x 1 
+Total Notes Used: 9 
+Result: The program successfully dispenses the requested amount using the minimum number of notes 
+based on the greedy approach, with dynamic programming handling insufficient denominations. 
